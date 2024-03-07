@@ -1,5 +1,5 @@
 {
-  "name": "twstm/vnext-admin-ui-svc",
+  "name": "@twstm/vnext-admin-ui-svc",
   "version": "0.5.13",
   "scripts": {
     "ng": "NODE_OPTIONS=--openssl-legacy-provider ng",
