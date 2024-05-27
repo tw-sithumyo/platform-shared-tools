@@ -1,8 +1,7 @@
+import * as moment from 'moment-timezone';
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { BehaviorSubject, Subscription } from "rxjs";
-import moment from "moment";
-
 import { MessageService } from "../_services_and_types/message.service";
 import { ReportService } from "../_services_and_types/report.service";
 import type { SettlementInfo } from "./dfsp-settlement-report.component";
@@ -52,14 +51,19 @@ export class SettlementInitiationReport implements OnInit {
 		});
 	}
 
+	getTimezoneOffset(): string {
+		const offset = moment().format('Z'); // e.g., +05:30 or -04:00
+		return `UTC${offset}`;
+	}
+
 	getInitiationReports(matrixId: string) {
 		this.initiationReportsSubs = this._reportSvc
 			.getAllSettlementInitiationReportsByMatrixId(matrixId)
 			.subscribe(
 				(result) => {
-					const formattedDate = moment(
+					const formattedDate = new Date(
 						result[0].settlementCreatedDate
-					).format("DD-MMM-YYYY hh:mm:ss A");
+					).toISOString();
 
 					this.settlementInfo = {
 						settlementId: result[0].matrixId,
@@ -68,8 +72,8 @@ export class SettlementInitiationReport implements OnInit {
 
 					const initiationReports = result.map((initiationReport) => {
 						const settlementTransfer = (
-							Number(initiationReport.participantCreditBalance) -
-							Number(initiationReport.participantDebitBalance)
+							Number(initiationReport.participantDebitBalance) -
+							Number(initiationReport.participantCreditBalance)
 						).toString();
 
 						return {

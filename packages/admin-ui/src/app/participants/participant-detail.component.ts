@@ -22,6 +22,7 @@ import {
 	IParticipantContactInfoChangeRequest,
 	IParticipantStatusChangeRequest,
 	ApprovalRequestState,
+	ParticipantFundsMovementTypes,
 } from "@mojaloop/participant-bc-public-types-lib";
 import { ParticipantsService } from "src/app/_services_and_types/participants.service";
 import { BehaviorSubject, Observable } from "rxjs";
@@ -33,6 +34,8 @@ import {
 	CertificateRequest,
 } from "../_services_and_types/certificate_types";
 import { HttpErrorResponse } from "@angular/common/http";
+import {Currency} from "@mojaloop/platform-configuration-bc-public-types-lib";
+import { PlatformConfigService } from "../_services_and_types/platform-config.service";
 
 @Component({
 	selector: "app-participant-detail",
@@ -92,7 +95,9 @@ export class ParticipantDetailComponent implements OnInit {
 	@ViewChild("fundsMovementModal") // Get a reference to the depositModal
 	fundsMovementModal!: NgbModal;
 	fundsMovementModalRef?: NgbModalRef;
-	fundsMovementModalMode!: ParticipantFundsMovementDirections;
+	fundsMovementModalMode!: ParticipantFundsMovementTypes;
+
+	currencyCodeList : BehaviorSubject<Currency[]> = new BehaviorSubject<Currency[]>([]);
 
 	constructor(
 		private _route: ActivatedRoute,
@@ -100,6 +105,7 @@ export class ParticipantDetailComponent implements OnInit {
 		private _messageService: MessageService,
 		private _certificatesService: CertificatesService,
 		private _modalService: NgbModal,
+		private _platformConfigSvc: PlatformConfigService,
 	) {}
 
 	async ngOnInit(): Promise<void> {
@@ -124,6 +130,16 @@ export class ParticipantDetailComponent implements OnInit {
 			// skip transition when progress's changed from 100 to 0
 			this.transitionClass = progress > 0 ? "circular-transition" : "";
 		});
+
+		this._platformConfigSvc.getLatestGlobalConfig().subscribe((globalConfig) => {
+			console.log("QuoteCreateComponent ngOnInit - got getLatestGlobalConfig", globalConfig);
+
+			const currencies : Currency[] = globalConfig.parameters.find(param => param.name === "CURRENCIES")?.currentValue;
+			this.currencyCodeList.next(currencies);
+	
+		}, error => {
+				this._messageService.addError(error.message);
+		})
 
 		await this._fetchParticipant();
 		await this.getApprovedCertificate();
@@ -966,7 +982,7 @@ export class ParticipantDetailComponent implements OnInit {
 			currencyCode: currency,
 			createdBy: "",
 			createdDate: Date.now(),
-			direction: this.fundsMovementModalMode,
+			type: this.fundsMovementModalMode,
 			note: depositNoteElem.value,
 			extReference: depositExtRefElem.value,
 			rejectedBy: null,
@@ -1158,7 +1174,7 @@ export class ParticipantDetailComponent implements OnInit {
 
 	showDeposit() {
 		this.fundsMovementModalMode =
-			ParticipantFundsMovementDirections.FUNDS_DEPOSIT;
+			ParticipantFundsMovementTypes.OPERATOR_FUNDS_DEPOSIT;
 		this.fundsMovementModalRef = this._modalService.open(
 			this.fundsMovementModal,
 			{ centered: true },
@@ -1167,7 +1183,7 @@ export class ParticipantDetailComponent implements OnInit {
 
 	showWithdrawal() {
 		this.fundsMovementModalMode =
-			ParticipantFundsMovementDirections.FUNDS_WITHDRAWAL;
+		ParticipantFundsMovementTypes.OPERATOR_FUNDS_WITHDRAWAL;
 		this.fundsMovementModalRef = this._modalService.open(
 			this.fundsMovementModal,
 			{ centered: true },

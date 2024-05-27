@@ -114,7 +114,7 @@
 
 		<div class="d-flex">
 			<p style="min-width: 250px">Settlement Created Date</p>
-			<p>{{ settlementInfo?.settlementCreatedDate || "-" }}</p>
+			<p>{{ (settlementInfo?.settlementCreatedDate | momentDate) || "-" }}</p>
 		</div>
 
 		<div class="d-flex">
@@ -129,13 +129,13 @@
 
 		<div class="d-flex">
 			<p style="min-width: 250px">Time Zone OffSet</p>
-			<p>UTC±00:00</p>
+			<p>{{ '' | timezoneOffset }}</p>
 		</div>
 	</div>
 
 	<table
 		class="table mb-0"
-		style="display: block; overflow-x: auto; margin-top: 30px"
+		style="overflow-x: auto; margin-top: 30px"
 	>
 		<thead class="thead-light">
 			<tr>
@@ -155,10 +155,10 @@
 				<th scope="col" style="min-width: 160px">
 					Total Value of All Transactions
 				</th>
-				<th scope="col" style="min-width: 160px">Currency</th>
 				<th scope="col" style="min-width: 160px">
 					Net Position vs. Each DFSP
 				</th>
+				<th scope="col" style="min-width: 160px">Currency</th>
 			</tr>
 		</thead>
 
@@ -186,8 +186,8 @@
 					{{ report.totalTransactionCount }}
 				</td>
 				<td style="min-width: 160px; text-align: right;">{{ report.totalAmount }}</td>
-				<td style="min-width: 160px">{{ report.currency }}</td>
 				<td style="min-width: 160px; text-align: right;">{{ report.netPosition }}</td>
+				<td style="min-width: 160px">{{ report.currency }}</td>
 			</tr>
 		</tbody>
 	</table>
@@ -208,7 +208,7 @@
 						{{ netPosition.value }}
 					</td>
 				</tr>
-			</tbody>	
+			</tbody>
 		</table>
 	</div>
 </div>
