@@ -5,7 +5,7 @@
 ROOT="./packages"
 REPOSITORY_TYPE="github"
 # Move to circleCi file
-DOCKER_BUILD_PLATFORMS=linux/amd64,linux/arm64
+DOCKER_BUILD_PLATFORMS=linux/amd64
 DOCKER_LATEST_RELEASE_NAME=snapshot
 
 printHeader "Phase 4 - Building docker images and publishing to DockerHub"
